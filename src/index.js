@@ -1,4 +1,4 @@
-export default function search (docs, str) {
+export default (docs, str) => {
   if (docs.length == 0) {
     return [];
   }
@@ -9,17 +9,18 @@ export default function search (docs, str) {
   for (let doc of docs) {
     const docTerms = normalizeText(doc.text);
     for (let term of searchTerms) {
+      const relevance = docTerms.filter((t) => term === t).length;
       if (docTerms.includes(term)) {
-        result.push(doc.id);
+        result.push({
+          id: doc.id,
+          relevance
+        });
         break;
       }
     }
   }
 
-  return result;
-}
+  result.sort((a,b) => b.relevance - a.relevance);
 
-const normalizeText = (text) => {
-  const re = /\w+/g;
-  return text.match(re);
+  return result.map(({ id }) => id);
 }
